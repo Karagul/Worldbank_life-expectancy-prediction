@@ -1,0 +1,54 @@
+
+import wbdata
+
+#get source
+wbdata.get_source()
+wbdata.get_indicator(source=16)
+
+#get indicators
+wbdata.search_indicators(raw_input("enter what data do you want:\n"))
+
+indicators=["health expenditure per capita","life expectancy","GDP per capita"]
+for m in indicators:
+    d=wbdata.search_indicators(m)
+print d
+
+    
+indicators={"NY.GDP.PCAP.PP.KD" :"GDP per capita",
+"SH.XPD.PCAP":"Health expenditure per capita",
+"SP.DYN.LE00.IN":"life expectancy(total)",
+"SP.DYN.LE00.FE.IN":"life expectancy(female)",
+"SP.DYN.LE00.MA.IN":"life expectancy(male)"}
+
+#get country code
+wbdata.search_countries(raw_input("enter which country do you want to analyze:\n"))
+
+a=["China","Indonesia","Iran","Japan","Korea","Russia","Singapore","Thailand",
+   "Cambodia","Israel","India","Philippines","Nepal","Jordan"]
+for i in a:
+   n= wbdata.search_countries(i) 
+   
+countries=["CHN","IDN","IRN","JPN","KOR","RUS","SGP","THA","KHM",
+          "ISR","IND","PHL","NPL","JOR"]
+
+df=df=wbdata.get_dataframe(indicators,country=countries,convert_date=False)
+df.describe()
+df=df.dropna()
+
+#import dataframe into csv file
+df.to_csv('/home/winnie/expectancy.csv')
+
+#import dataframe into sql 
+import MySQLdb as myDB
+import pandas.io.sql as pdSQL
+
+dbConnect=myDB.connect(host='localhost',
+                       user='root',
+                       passwd='889092',
+                       db='winnie')
+df.to_sql(con=dbConnect,
+              name='expectancy',
+              if_exists='replace',
+              flavor='mysql')
+myDF= pdSQL.read_frame('SELECT * FROM life_expectancy',dbConnect)
+  
